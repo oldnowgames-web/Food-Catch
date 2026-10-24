@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Food Catch</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Lilita+One&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="game-container" data-state="START">
+  <canvas id="gameCanvas"></canvas>
+  <div id="flash"></div>
+
+  <div id="hud">
+    <div class="hud-box wood-panel"><span class="hud-label">Pontos</span><span id="score-display" class="hud-value">0</span></div>
+    <div class="hud-box wood-panel" id="hud-lives"><div id="lives-container"></div></div>
+  </div>
+  <div id="hud2">
+    <div id="level-chip" class="chip">Nível 1</div>
+    <div id="combo-chip" class="chip">🔥 COMBO x2</div>
+  </div>
+  <div id="banner"></div>
+  <div id="powerbar">
+    <div class="pchip" id="pc-shield"><span>🛡️</span></div>
+    <div class="pchip" id="pc-slow"><span>⏳</span><i></i></div>
+    <div class="pchip" id="pc-magnet"><span>🧲</span><i></i></div>
+    <div class="pchip" id="pc-double"><span>✨</span><i></i></div>
+  </div>
+
+  <button id="pause-btn" class="btn-wood">⏸️</button>
+
+  <div id="touch-controls">
+    <div id="btn-left" class="touch-btn">◀</div>
+    <div id="btn-right" class="touch-btn">▶</div>
+  </div>
+
+  <!-- Tela inicial -->
+  <div id="start-screen" class="screen-overlay active">
+    <div id="start-stage">
+      <div class="sunburst"></div>
+      <span class="orbit" style="left: 4%; top: 6%; animation-delay: 0s;">🍕</span>
+      <span class="orbit" style="right: 4%; top: 2%; animation-delay: .5s;">🍔</span>
+      <span class="orbit" style="left: 0%; top: 40%; animation-delay: 1s; font-size: 1.6rem;">🍩</span>
+      <span class="orbit" style="right: 0%; top: 36%; animation-delay: 1.5s; font-size: 1.6rem;">🍣</span>
+
+      <div class="title-wrap">
+        <span class="title-line l1" id="t1"></span>
+        <span class="title-line l2" id="t2"></span>
+        <div class="title-sub">Pegue tudo no prato!</div>
+      </div>
+
+      <div id="panel-main" class="menu-panel show stack">
+        <div class="record-badge">🏆 Recorde: <span id="start-highscore">0</span></div>
+        <button id="start-btn" class="btn-wood btn-big">▶️ JOGAR</button>
+        <button id="how-btn" class="btn-wood">📖 COMO JOGAR</button>
+        <button id="opts-btn" class="btn-wood">⚙️ OPÇÕES</button>
+      </div>
+
+      <div id="panel-how" class="menu-panel stack">
+        <div class="wood-panel" style="padding: 20px; display:flex; flex-direction:column; gap:14px;">
+          <h2 class="panel-title" style="font-size:1.9rem;">Como Jogar</h2>
+          <div class="how-list">
+            <div>🍽️ Mova o <b>prato de porcelana</b> com as <b>setas</b> / <b>A D</b>, arrastando o dedo ou os botões na tela.</div>
+            <div>🍕 Cada comida pega vale pontos. Encadeie <b>combos</b> para ganhar bônus!</div>
+            <div>⭐ A <b>estrela dourada</b> vale 50 pontos e não tira vida se cair.</div>
+            <div>💔 Você tem <b>5 vidas</b>. Comida no chão = uma vida a menos.</div>
+            <div>✨ <b>Power-ups</b> caem com um círculo brilhante: ❤️ vida extra, 🛡️ escudo, ⏳ câmera lenta, 🧲 ímã e ✨ pontos x2.</div>
+            <div>⏸️ <b>P</b> ou <b>Esc</b> pausa o jogo.</div>
+          </div>
+        </div>
+        <button class="btn-wood back-btn">⬅️ VOLTAR</button>
+      </div>
+
+      <div id="panel-opts" class="menu-panel stack">
+        <div class="wood-panel" style="padding: 20px; display:flex; flex-direction:column; gap:14px;">
+          <h2 class="panel-title" style="font-size:1.9rem;">Opções</h2>
+          <button id="music-toggle" class="btn-wood toggle-btn">🎵 Música: LIGADA</button>
+          <button id="sfx-toggle" class="btn-wood toggle-btn">🔊 Efeitos: LIGADOS</button>
+          <button id="reset-btn" class="btn-wood btn-small">🗑️ Zerar recorde</button>
+        </div>
+        <button class="btn-wood back-btn">⬅️ VOLTAR</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pausa -->
+  <div id="pause-screen" class="screen-overlay">
+    <div class="menu-card wood-panel">
+      <h2 class="panel-title">PAUSADO</h2>
+      <button id="resume-btn" class="btn-wood btn-big" style="font-size:1.3rem;">▶️ CONTINUAR</button>
+      <button id="restart-pause-btn" class="btn-wood">🔄 REINICIAR</button>
+      <button id="menu-pause-btn" class="btn-wood">🏠 MENU</button>
+    </div>
+  </div>
+
+  <!-- Game over -->
+  <div id="gameover-screen" class="screen-overlay">
+    <div class="menu-card wood-panel">
+      <h1 class="go-title">GAME OVER</h1>
+      <p class="subtitle">Você deixou 5 comidas caírem!</p>
+      <div id="new-record">🎉 NOVO RECORDE! 🎉</div>
+      <div class="score-table">
+        <div class="score-row"><span>Pontuação</span><span id="final-score" style="color:#fff;">0</span></div>
+        <div class="score-row"><span>Nível</span><span id="final-level" style="color:#c8a8ff;">1</span></div>
+        <div class="score-row"><span>🏆 Recorde</span><span id="final-highscore" style="color:#ffd84a;">0</span></div>
+      </div>
+      <button id="restart-btn" class="btn-wood btn-big" style="font-size:1.25rem;">🔄 JOGAR NOVAMENTE</button>
+      <button id="menu-go-btn" class="btn-wood">🏠 MENU</button>
+    </div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
